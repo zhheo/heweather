@@ -1,0 +1,40 @@
+{
+    "config": {
+        "title": "HeWeather",
+        "step": {
+            "user": {
+                "title": "HeWeather Setup",
+                "description": "Set up HeWeather API connection. You need a HeWeather developer account and API key.",
+                "data": {
+                    "name": "Name",
+                    "location": "Location ID",
+                    "key": "API Key",
+                    "disasterlevel": "Disaster Warning Level",
+                    "disastermsg": "Disaster Message Format"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unexpected error"
+        },
+        "abort": {
+            "already_configured": "This location is already configured"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "HeWeather Options",
+                "description": "Configure options for HeWeather",
+                "data": {
+                    "location": "Location ID",
+                    "key": "API Key",
+                    "disasterlevel": "Disaster Warning Level",
+                    "disastermsg": "Disaster Message Format"
+                }
+            }
+        }
+    }
+} 
