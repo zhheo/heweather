@@ -1,0 +1,40 @@
+{
+    "config": {
+        "title": "和风天气",
+        "step": {
+            "user": {
+                "title": "设置和风天气",
+                "description": "设置和风天气API连接。您需要一个和风天气开发者账号和API密钥。",
+                "data": {
+                    "name": "名称",
+                    "location": "位置ID",
+                    "key": "API密钥",
+                    "disasterlevel": "灾害预警等级",
+                    "disastermsg": "灾害预警信息格式"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "连接失败",
+            "invalid_auth": "认证无效",
+            "unknown": "未知错误"
+        },
+        "abort": {
+            "already_configured": "该位置已经配置过了"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "和风天气选项",
+                "description": "配置和风天气的选项",
+                "data": {
+                    "location": "位置ID",
+                    "key": "API密钥",
+                    "disasterlevel": "灾害预警等级",
+                    "disastermsg": "灾害预警信息格式"
+                }
+            }
+        }
+    }
+} 

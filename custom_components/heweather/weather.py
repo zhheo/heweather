@@ -41,15 +41,18 @@ from homeassistant.const import (
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.dt as dt_util
 
+from .const import (
+    DOMAIN,
+    CONF_LOCATION,
+    CONF_KEY,
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 TIME_BETWEEN_UPDATES = timedelta(seconds=1800)
 HOURLY_TIME_BETWEEN_UPDATES = timedelta(seconds=1800)
 
 DEFAULT_TIME = dt_util.now()
-
-CONF_LOCATION = "location"
-CONF_KEY = "key"
 
 CONDITION_CLASSES = {
     'sunny': ["晴"],
@@ -75,43 +78,21 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_LOCATION): cv.string,
     vol.Required(CONF_KEY): cv.string,
 })
-# # 集成安装
-# async def async_setup_entry(hass, config_entry, async_add_entities):
-#     _LOGGER.debug(f"register_static_path: {ROOT_PATH + ':custom_components/qweather/local'}")
-#     hass.http.register_static_path(ROOT_PATH, hass.config.path('custom_components/qweather/local'), False)
-#     hass.components.frontend.add_extra_js_url(hass, ROOT_PATH + '/qweather-card/qweather-card.js?ver=' + VERSION)
-#     hass.components.frontend.add_extra_js_url(hass, ROOT_PATH + '/qweather-card/qweather-more-info.js?ver=' + VERSION)
-#
-#     _LOGGER.info("setup platform weather.Heweather...")
-#
-#     name = config_entry.data.get(CONF_NAME)
-#     key = config_entry.data[CONF_API_KEY]
-#     location = config_entry.data[CONF_LOCATION]
-#     #unique_id = config_entry.unique_id
-#     longitude = round(config_entry.data[CONF_LONGITUDE],2)
-#     latitude = round(config_entry.data[CONF_LATITUDE],2)
-#     update_interval_minutes = config_entry.options.get(CONF_UPDATE_INTERVAL, 10)
-#     dailysteps = config_entry.options.get(CONF_DAILYSTEPS, 7)
-#     if dailysteps != 7 and dailysteps !=3:
-#         dailysteps = 7
-#     hourlysteps = config_entry.options.get(CONF_HOURLYSTEPS, 24)
-#     if hourlysteps != 24:
-#         hourlysteps = 24
-#     alert = config_entry.options.get(CONF_ALERT, True)
-#     life = config_entry.options.get(CONF_LIFEINDEX, True)
-#     starttime = config_entry.options.get(CONF_STARTTIME, 0)
-#     gird_weather = config_entry.options.get(CONF_GIRD, False)
-#
-#     #data = WeatherData(hass, name, unique_id, api_key, longitude, latitude, dailysteps ,hourlysteps, alert, life, starttime, gird_weather)
-#     #location = config.get(CONF_LOCATION)
-#     #key = config.get(CONF_KEY)
-#     data = WeatherData(hass, location, key)
-#     await data.async_update(dt_util.now())
-#     async_track_time_interval(hass, data.async_update, timedelta(minutes = update_interval_minutes))
-#     _LOGGER.debug('[%s]刷新间隔时间: %s 分钟', name, update_interval_minutes)
-#     async_add_entities([HeWeather(data, location)], True)
 
-#@asyncio.coroutine
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """通过配置流设置和风天气平台。"""
+    _LOGGER.info("setup platform weather.Heweather from config entry...")
+    
+    location = config_entry.data[CONF_LOCATION]
+    key = config_entry.data[CONF_KEY]
+    
+    data = WeatherData(hass, location, key)
+    await data.async_update(dt_util.now())
+    async_track_time_interval(hass, data.async_update, TIME_BETWEEN_UPDATES)
+    
+    async_add_entities([HeWeather(data, location)], True)
+
+
 async def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
    """Set up the hefeng weather."""
    _LOGGER.info("setup platform weather.Heweather...")

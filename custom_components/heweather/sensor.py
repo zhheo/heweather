@@ -33,6 +33,19 @@ from homeassistant.helpers.entity import Entity
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.dt as dt_util
 
+from .const import (
+    DOMAIN,
+    CONF_LOCATION,
+    CONF_KEY,
+    CONF_DISASTERLEVEL,
+    CONF_DISASTERMSG,
+    DEFAULT_DISASTERLEVEL,
+    DEFAULT_DISASTERMSG,
+    DISASTER_LEVEL,
+    ATTR_UPDATE_TIME,
+    ATTR_SUGGESTION,
+    ATTRIBUTION,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,10 +53,6 @@ WEATHER_TIME_BETWEEN_UPDATES = timedelta(seconds=600)
 LIFESUGGESTION_TIME_BETWEEN_UPDATES = timedelta(seconds=7200)
 
 CONF_OPTIONS = "options"
-CONF_LOCATION = "location"
-CONF_KEY = "key"
-CONF_DISASTERLEVEL = "disasterlevel"
-CONF_DISASTERMSG = "disastermsg"
 CONF_SENSOR_LIST = ["air","comf","cw","drsg","flu","sport","trav","uv","sunglass","guomin","liangshai","jiaotong","fangshai","kongtiao","disaster_warn","temprature","humidity","category","feelsLike","text","windDir","windScale","windSpeed","pressure","vis","cloud","dew","precip","qlty","level","primary","pm25","pm10","co","so2","no2","o3"]
 
 OPTIONS = {
@@ -89,32 +98,44 @@ OPTIONS = {
 
 }
 
-DISASTER_LEVEL = {
-        "Cancel":0,
-        "None":0,
-        "Unknown":0,
-        "Standard":1,
-        "Minor":2,
-        "Moderate":3,
-        "Major":4,
-        "Severe":5,
-        "Extreme":6
-        }
-ATTR_UPDATE_TIME = "更新时间"
-ATTR_SUGGESTION = "建议"
-ATTRIBUTION = "来自和风天气的天气数据"
-
-
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_LOCATION): cv.string,
     vol.Required(CONF_KEY): cv.string,
     vol.Required(CONF_DISASTERLEVEL): cv.string,
     vol.Required(CONF_DISASTERMSG): cv.string,
-
 })
 
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """通过配置流设置和风天气传感器组件。"""
+    _LOGGER.info("setup platform sensor.Heweather from config entry...")
+    
+    location = config_entry.data[CONF_LOCATION]
+    key = config_entry.data[CONF_KEY]
+    disasterlevel = str(config_entry.options.get(
+        CONF_DISASTERLEVEL,
+        config_entry.data.get(CONF_DISASTERLEVEL, DEFAULT_DISASTERLEVEL)
+    ))
+    disastermsg = config_entry.options.get(
+        CONF_DISASTERMSG,
+        config_entry.data.get(CONF_DISASTERMSG, DEFAULT_DISASTERMSG)
+    )
+    
+    # 这里通过 data 实例化class weatherdata，并传入调用API所需信息
+    weather_data = WeatherData(hass, location, key, disastermsg, disasterlevel)
+    suggestion_data = SuggestionData(hass, location, key)
 
-#@asyncio.coroutine
+    await weather_data.async_update(dt_util.now())
+    async_track_time_interval(hass, weather_data.async_update, WEATHER_TIME_BETWEEN_UPDATES)
+
+    await suggestion_data.async_update(dt_util.now())
+    async_track_time_interval(hass, suggestion_data.async_update, LIFESUGGESTION_TIME_BETWEEN_UPDATES)
+
+    dev = []
+    for option in CONF_SENSOR_LIST:
+        dev.append(HeweatherWeatherSensor(weather_data, suggestion_data, option, location))
+    async_add_entities(dev, True)
+
+
 async def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     """这个协程是程序的入口，其中add_devices函数也变成了异步版本."""
     _LOGGER.info("setup platform sensor.Heweather...")
@@ -135,7 +156,7 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
 
     dev = []
     for option in CONF_SENSOR_LIST:
-        dev.append(HeweatherWeatherSensor(weather_data,suggestion_data, option,location))
+        dev.append(HeweatherWeatherSensor(weather_data, suggestion_data, option, location))
     async_add_devices(dev, True)
 
 

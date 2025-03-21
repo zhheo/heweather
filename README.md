@@ -1,8 +1,8 @@
 # 和风天气 homeassistant插件
 
-  我使用的插件最早引用自[瀚思彼岸智能家居技术论坛](https://bbs.hassbian.com/) Golden_Soap大佬的[插件](https://bbs.hassbian.com/thread-3971-1-1.html),但该插件很久没有更新过配置，导致我的环境一直无法运行，自己肝的原因主要是懒得改之前的参数配置，换插件全得改一遍，有的数据还没了，又正好借着这个机会能再学习下插件的逻辑，哈哈哈。
-  
-  如果觉得对你有帮助，就来b站支持一波吧：[_小愚_](https://space.bilibili.com/15856864)
+本分支由[zhheo](https://github.com/zhheo)开发，基于[_小愚_](https://space.bilibili.com/15856864)的和风天气进行修改，因为改动的代码太多，就不和主项目合并了。
+
+相比[原项目](https://github.com/c1pher-cn/heweather)，我主要将配置都放在UI界面中进行，安装和使用比较方便。
 
 ## 使用说明：
 
@@ -16,47 +16,25 @@
 
 4.新版本整合优化了sensor以及相关中文名字，图标。将原有的24小时天天气预报从sensor中转移到weather里
 
+## 安装方法
 
+1. 下载代码并解压
+2. 复制`custom_components/heweather`文件夹到你的Home Assistant的`custom_components`目录下
+3. 重启Home Assistant
 
 ## 配置方法
 
-1.天气预报，默认支持7天和24小时预报，放在weather里，
+### 方法一：通过用户界面配置（推荐）
 
-```
-weather:
-  - platform: heweather
-    location: 101210106    # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
-    key: ABCDE             # api平台申请的key
-```   
-         
-2.天气情况、空气质量、自然灾害预警、各种生活指数，放在sensor里
+1. 在Home Assistant的配置 -> 集成 页面中点击添加集成
+2. 搜索"和风天气"并点击
+3. 从下拉菜单中选择你所在的城市/区县，或选择"自定义输入"手动输入位置ID [点我查看对照表](https://raw.githubusercontent.com/qwd/LocationList/master/China-City-List-latest.csv)
+4. 输入以下信息：
+   - 名称：自定义名称（默认为"和风天气"）
+   - API密钥：在和风天气开发者平台申请的key
+   - 灾害预警等级：1-6之间的数字，表示关注哪个等级及以上的灾害
+   - 灾害预警信息格式：选择"title"（只显示标题）或"allmsg"（显示标题+明细信息）
+5. 点击提交，完成配置
 
-```
-sensor:
-  - platform: heweather
-    location: 101210106     # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
-    key: ABCDE              # api平台申请的key
-    disasterlevel: 3
-    disastermsg: allmsg
- ```    
-两个参数：
-
-  disasterlevel的数字表示关注的自然灾害等级，配置3表示关注 >=3级的灾害
-  
-    Standard    标准的   1
-    Minor       次要的   2
-    Moderate    中等的   3
-    Major       主要     4
-    Severe      严重     5
-    Extreme     极端     6
-    
-  disastermsg表示灾害预警是否显示灾害的明细信息
-    title  只显示标题
-    allmsg 显示标题+明细信息
-    
-
-
-## 自动化配置实例
-
-https://www.bilibili.com/read/cv18078640
+后续如需修改配置，可以在集成页面找到"和风天气"，点击"选项"进行修改。你可以选择保持当前位置或更改位置。
 
